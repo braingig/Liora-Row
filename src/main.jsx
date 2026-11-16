@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { catalogImage, categories, collections, money, products, sizes } from './catalog.js';
+import { catalogImage, categories, collections, galleryFor, money, products, sizes } from './catalog.js';
 import './style.css';
 
 const navKeys = ['black-friday', 'new-in', 'clothing', 'petite', 'dresses', 'separates', 'workwear', 'sale'];
@@ -177,9 +177,45 @@ function Catalog({ id, query, saved, toggle, go }) {
   </div>;
 }
 
+function ProductGallery({ product }) {
+  const [active, setActive] = useState(0);
+  const [zoom, setZoom] = useState(false);
+  const photos = galleryFor(product);
+  const photo = photos[active];
+
+  function step(offset) {
+    setActive(index => (index + offset + photos.length) % photos.length);
+  }
+
+  function onKeyDown(event) {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    step(event.key === 'ArrowLeft' ? -1 : 1);
+  }
+
+  return <section className="product-gallery" aria-label="Product gallery" onKeyDown={onKeyDown}>
+    <button className="zoom-image" onClick={() => setZoom(true)} aria-label={'Enlarge product photo, ' + photo.view.toLowerCase() + ' view'}>
+      <img key={photo.src} src={photo.src} alt={photo.alt} fetchPriority={active === 0 ? 'high' : 'auto'} />
+      <span><Icon name="search" /></span>
+    </button>
+    <div className="gallery-thumbnails" role="group" aria-label="Choose a product view">
+      {photos.map(({ view, src }, index) => <button key={view} type="button" aria-label={view + ' view'} aria-pressed={active === index} onClick={() => setActive(index)}>
+        <img src={src} alt="" /><span>{view}</span>
+      </button>)}
+    </div>
+    {zoom && <Modal className="zoom-dialog" onClose={() => setZoom(false)} label="Product photo">
+      <img key={photo.src} src={photo.src} alt={photo.alt} />
+      <div className="gallery-zoom-controls">
+        <button className="icon" aria-label="Previous product photo" onClick={() => step(-1)}><Icon name="left" /></button>
+        <span role="status">{photo.view} view · {active + 1} of {photos.length}</span>
+        <button className="icon" aria-label="Next product photo" onClick={() => step(1)}><Icon name="right" /></button>
+      </div>
+    </Modal>}
+  </section>;
+}
+
 function Product({ p, saved, toggle, add }) {
   const [size, setSize] = useState('');
-  const [zoom, setZoom] = useState(false);
   const [error, setError] = useState(false);
   function buy() {
     if (!size) { setError(true); document.getElementById('size-options').focus(); return; }
@@ -188,7 +224,7 @@ function Product({ p, saved, toggle, add }) {
   return <div className="frame product-page">
     <Breadcrumb items={[[categories[p.category], collectionUrl(p.category)], [p.name]]} />
     <div className="product-layout">
-      <div className="product-gallery"><button className="zoom-image" onClick={() => setZoom(true)} aria-label="Enlarge product photo"><img src={p.image} alt={p.name + ' in ' + p.colour.toLowerCase()} /><span><Icon name="search"/></span></button></div>
+      <ProductGallery product={p} />
       <div className="product-detail-copy"><a className="eyebrow" href={collectionUrl(p.category)}>{categories[p.category]}</a><h1>{p.name}</h1><Price p={p} /><p className="colour-label">Colour <strong>{p.colour}</strong></p>
         <fieldset id="size-options" tabIndex="-1"><legend>Size (UK)</legend><div className="sizes">{sizes.map(s => <button key={s} disabled={!p.sizes.includes(s)} aria-pressed={size === s} onClick={() => { setSize(s); setError(false); }}>{s}</button>)}</div>{error && <p role="alert" className="reduced">Select a size to add this item.</p>}</fieldset>
         <div className="add-row"><button className="button" onClick={buy}>Add to bag</button><button className={'icon product-save' + (saved.includes(p.id) ? ' saved' : '')} aria-label="Save to wishlist" aria-pressed={saved.includes(p.id)} onClick={() => toggle(p.id)}><Icon name="heart" /></button></div>
@@ -199,7 +235,6 @@ function Product({ p, saved, toggle, add }) {
       </div>
     </div>
     <section className="related"><h2>You may also like</h2><div className="product-grid">{products.filter(other => other.category === p.category && other.id !== p.id).slice(0, 4).map(other => <ProductCard key={other.id} p={other} saved={saved.includes(other.id)} toggle={toggle} />)}</div></section>
-    {zoom && <Modal className="zoom-dialog" onClose={() => setZoom(false)} label="Product photo"><img src={p.image} alt={p.name} /></Modal>}
   </div>;
 }
 
