@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { categories, collections, money, products, sizes } from './catalog.js';
+import { catalogImage, categories, collections, money, products, sizes } from './catalog.js';
 import './style.css';
 
 const navKeys = ['black-friday', 'new-in', 'clothing', 'petite', 'dresses', 'separates', 'workwear', 'sale'];
@@ -56,7 +56,7 @@ function Header({ count, open, go }) {
     <a className="skip" href="#main">Skip to content</a>
     <div className="announcement">
       <button aria-label="Previous announcement" onClick={() => setPromo((promo + 2) % 3)}><Icon name="left" /></button>
-      <a href={collectionUrl(promos[promo][1])}>{promos[promo][0]} <span>→</span></a>
+      <a href={collectionUrl(promos[promo][1])}><span className="announcement-copy" key={promo}>{promos[promo][0]} <span>→</span></span></a>
       <button aria-label="Next announcement" onClick={() => setPromo((promo + 1) % 3)}><Icon name="right" /></button>
     </div>
     <header className="site-header" onClick={closeNav} onKeyDown={closeNav} onMouseLeave={() => setMenu('')} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setMenu(''); }}>
@@ -105,8 +105,9 @@ function ProductCard({ p, saved, toggle }) {
 }
 
 function Tile({ id, file, label, wide = false }) {
+  const source = file.startsWith('campaign-') ? image(file) : catalogImage(file);
   return <a className={'edit-tile' + (wide ? ' wide-tile' : '')} href={collectionUrl(id)}>
-    <img src={image(file)} loading="lazy" alt="" /><div><h2>{label || labels[id]}</h2><span>Shop now <span aria-hidden="true">→</span></span></div>
+    <img src={source} loading="lazy" alt="" /><div><h2>{label || labels[id]}</h2><span>Shop now <span aria-hidden="true">→</span></span></div>
   </a>;
 }
 
@@ -348,7 +349,7 @@ function App() {
   else page = <div className="frame empty"><h1>Page unavailable</h1><a className="button" href="/">Return home</a></div>;
 
   const count = bag.reduce((sum, line) => sum + line.quantity, 0);
-  return <><Header count={count} open={() => setDrawer(true)} go={go} /><main id="main">{page}</main><Footer />{drawer && <Modal label="Shopping bag" className="bag-drawer" onClose={() => setDrawer(false)}><h2>Your bag ({count})</h2><Bag bag={bag} adjust={adjust} close={() => setDrawer(false)} /></Modal>}</>;
+  return <><Header count={count} open={() => setDrawer(true)} go={go} /><main id="main">{route ? <div className="page-transition" key={path.pathname}>{page}</div> : page}</main><Footer />{drawer && <Modal label="Shopping bag" className="bag-drawer" onClose={() => setDrawer(false)}><h2>Your bag ({count})</h2><Bag bag={bag} adjust={adjust} close={() => setDrawer(false)} /></Modal>}</>;
 }
 
 createRoot(document.getElementById('root')).render(<App />);

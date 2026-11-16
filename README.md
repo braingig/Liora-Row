@@ -17,4 +17,6 @@ Bag, wishlist, and profile preferences use local browser storage. Checkout is a 
 
 ## Photography
 
-The images in `public/images/` were made with the built-in ImageGen tool. The campaign briefs requested a square editorial photograph of a fictional fashion model in a plum floral wrap dress in a travertine gallery and a matching photo sheet with a portrait, fabric detail, and a second model in a lilac satin dress. The catalog briefs requested individual studio photos of diverse models wearing six distinctive styles per category, against consistent warm grey backdrops.
+The images in `public/images/` were made with the built-in ImageGen tool. The campaign briefs requested a square editorial photograph of a fictional fashion model in a plum floral wrap dress in a travertine gallery and a matching photo sheet with a portrait, fabric detail, and a second model in a lilac satin dress.
+
+The catalog briefs requested pairs of high-resolution studio portraits using the earlier photos as references for the models, garment silhouettes, colours, trims, and styling. They specified matched warm grey backdrops, full-length framing or head-to-thigh framing for tops and knitwear, and sharp focus on fabric weave, stitching, and garment edges. Each portrait is exported separately in `public/images/catalog/`.

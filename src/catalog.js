@@ -1,4 +1,5 @@
 export const sizes = [6, 8, 10, 12, 14, 16, 18, 20];
+export const catalogImage = name => '/images/catalog/' + name + '.jpg';
 
 const inventory = {
   dresses: ['Dresses', [
@@ -73,7 +74,7 @@ export const categories = Object.fromEntries(Object.entries(inventory).map(([key
 export const products = Object.entries(inventory).flatMap(([category, [, items]]) => items.map(([name, colour, regular, sale], index) => ({
   id: name.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-'), name, colour, category, regular,
   price: sale ?? regular, sale: Boolean(sale),
-  image: '/images/' + category + '-' + (index + 1) + '.jpg',
+  image: catalogImage(category + '-' + (index + 1)),
   sizes: sizes.filter((size, i) => index % 3 !== 2 || i !== 0),
   description: descriptions[category],
   index,
